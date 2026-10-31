@@ -1,0 +1,18 @@
+digraph slave {
+  rankdir=LR; bgcolor=white; node [shape=circle, fontname="Helvetica", fontsize=12, width=1.1, style=filled, fillcolor="#e8eef7"];
+  edge [fontname="Helvetica", fontsize=10];
+  label="i2c_slave — FSM приймача (START/STOP переводять у ADDR/IDLE з будь-якого стану)"; labelloc=t; fontname="Helvetica";
+  IDLE [shape=doublecircle, fillcolor="#d7f0dc"];
+  IDLE -> ADDR   [label="START"];
+  ADDR -> IDLE   [label="8 bits,\naddr != 0x50"];
+  ADDR -> ACK_A  [label="8 bits, addr = 0x50\nSDA<=0 (ACK)"];
+  ACK_A -> RX    [label="SCL fall, R/W=0"];
+  ACK_A -> TX    [label="SCL fall, R/W=1\nsr<=mem[ptr]"];
+  RX -> ACK_RX   [label="8 bits: ptr / mem[ptr++]\nrx_valid, ACK"];
+  ACK_RX -> RX   [label="SCL fall"];
+  TX -> ACK_TX   [label="8 bits sent\nrelease SDA"];
+  ACK_TX -> TX   [label="master ACK\nsr<=mem[++ptr]"];
+  ACK_TX -> IDLE [label="master NACK"];
+  RX -> IDLE     [label="STOP", style=dashed];
+  RX -> ADDR     [label="Sr", style=dashed];
+}
