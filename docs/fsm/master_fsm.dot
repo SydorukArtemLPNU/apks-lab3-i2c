@@ -1,0 +1,15 @@
+digraph master {
+  rankdir=LR; bgcolor=white; node [shape=circle, fontname="Helvetica", fontsize=12, width=1.1, style=filled, fillcolor="#e8eef7"];
+  edge [fontname="Helvetica", fontsize=10];
+  label="i2c_master — FSM передавача (кожен стан триває 4 фази по 1/4 біта)"; labelloc=t; fontname="Helvetica";
+  IDLE [shape=doublecircle, fillcolor="#d7f0dc"];
+  IDLE -> START [label="cmd=START\n(S / Sr)"];
+  IDLE -> DATA  [label="cmd=WRITE: sr<=din\ncmd=READ"];
+  IDLE -> STOP  [label="cmd=STOP"];
+  START -> IDLE [label="ph3: SCL low\ndone, busy=1"];
+  DATA:n -> DATA:n  [label="ph3, bitcnt<7\nnext bit"];
+  DATA -> ACK   [label="ph3, bitcnt=7"];
+  ACK -> IDLE   [label="ph3: done\nack / dout"];
+  STOP -> IDLE  [label="ph3: done, busy=0"];
+  DATA:s -> DATA:s  [label="ph2 & SCL=0\n(stretching: wait)", style=dashed, color="#cf222e", fontcolor="#cf222e"];
+}
